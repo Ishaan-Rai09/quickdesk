@@ -147,10 +147,10 @@ export default function AgentLogin() {
 
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
-                  Demo Credentials: agent@quickdesk.com / Agent@123456
+                  <strong>Agent:</strong> agent@quickdesk.com / agent123
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
-                  Admin: admin@quickdesk.com / Admin@123456
+                  <strong>Admin:</strong> admin@quickdesk.com / admin123
                 </p>
                 <Link href="/" className="text-indigo-600 hover:text-indigo-500 text-sm">
                   Back to Home

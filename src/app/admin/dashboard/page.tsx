@@ -49,8 +49,21 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch users, categories, tickets
-      // Implementation will be added
+      // Fetch users
+      const usersResponse = await fetch('/api/users');
+      const usersData = await usersResponse.json();
+      setUsers(usersData.data || []);
+
+      // Fetch categories
+      const categoriesResponse = await fetch('/api/categories');
+      const categoriesData = await categoriesResponse.json();
+      setCategories(categoriesData.data || []);
+
+      // Fetch tickets
+      const ticketsResponse = await fetch('/api/tickets?allTickets=true');
+      const ticketsData = await ticketsResponse.json();
+      setTickets(ticketsData.data || []);
+
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -71,8 +84,8 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            <div className="text-2xl font-bold">{users.length}</div>
+            <p className="text-xs text-muted-foreground">Total registered users</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -88,8 +101,8 @@ export default function AdminDashboard() {
             <Ticket className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5,678</div>
-            <p className="text-xs text-muted-foreground">+15.3% from last month</p>
+            <div className="text-2xl font-bold">{tickets.length}</div>
+            <p className="text-xs text-muted-foreground">Total support tickets</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -105,8 +118,8 @@ export default function AdminDashboard() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+2 new this month</p>
+            <div className="text-2xl font-bold">{categories.length}</div>
+            <p className="text-xs text-muted-foreground">Available categories</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -122,8 +135,8 @@ export default function AdminDashboard() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">94.2%</div>
-            <p className="text-xs text-muted-foreground">+1.2% from last month</p>
+            <div className="text-2xl font-bold">{tickets.length > 0 ? Math.round((tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length / tickets.length) * 100) : 0}%</div>
+            <p className="text-xs text-muted-foreground">Resolution rate</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -166,31 +179,32 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {/* Mock data - replace with real data */}
-              <tr className="border-b">
-                <td className="p-2">John Doe</td>
-                <td className="p-2">john@example.com</td>
-                <td className="p-2">
-                  <Badge variant="outline">User</Badge>
-                </td>
-                <td className="p-2">
-                  <Badge variant="secondary">Active</Badge>
-                </td>
-                <td className="p-2">2024-01-15</td>
-                <td className="p-2">
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
+{users.map(user => (
+                <tr key={user.id} className="border-b">
+                  <td className="p-2">{user.name}</td>
+                  <td className="p-2">{user.email}</td>
+                  <td className="p-2">
+                    <Badge variant="outline">{user.role}</Badge>
+                  </td>
+                  <td className="p-2">
+                    <Badge variant="secondary">{user.active ? 'Active' : 'Inactive'}</Badge>
+                  </td>
+                  <td className="p-2">{new Date(user.createdAt).toLocaleDateString()}</td>
+                  <td className="p-2">
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button size="sm" variant="outline">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -211,26 +225,27 @@ export default function AdminDashboard() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Mock categories - replace with real data */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold">Technical Support</h3>
-                <div className="flex gap-1">
-                  <Button size="sm" variant="outline">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="outline">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+          {categories.map(category => (
+            <Card key={category._id}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold">{category.name}</h3>
+                  <div className="flex gap-1">
+                    <Button size="sm" variant="outline">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-              <p className="text-sm text-gray-600 mb-2">
-                Technical issues and troubleshooting
-              </p>
-              <Badge style={{ backgroundColor: '#3B82F6' }}>Active</Badge>
-            </CardContent>
-          </Card>
+                <p className="text-sm text-gray-600 mb-2">
+                  {category.description}
+                </p>
+                <Badge style={{ backgroundColor: category.color }}>Active</Badge>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </CardContent>
     </Card>

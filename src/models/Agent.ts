@@ -45,7 +45,7 @@ const AgentSchema = new Schema<IAgent>(
 );
 
 // Indexes for better query performance
-AgentSchema.index({ email: 1 });
+// Note: email index is created by unique: true above
 AgentSchema.index({ isActive: 1 });
 
 export default mongoose.models.Agent || mongoose.model<IAgent>('Agent', AgentSchema);

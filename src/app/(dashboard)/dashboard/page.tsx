@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import Header from '@/components/layout/Header';
 import {
   Plus,
   Search,
@@ -15,7 +16,9 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  MoreHorizontal
+  MoreHorizontal,
+  Sparkles,
+  TrendingUp
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatRelativeTime, getStatusColor, getPriorityColor } from '@/lib/utils';
@@ -103,8 +106,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      <Header />
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -282,6 +287,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </motion.div>
+        </div>
       </div>
     </div>
   );

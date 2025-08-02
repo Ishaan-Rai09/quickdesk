@@ -6,9 +6,10 @@ import { getCurrentUser, extractTokenFromRequest, verifyToken } from '@/lib/auth
 // Vote on a ticket
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await dbConnect();
+  const { id } = await context.params;
 
   // Check authentication
   let user = null;
@@ -44,7 +45,7 @@ export async function POST(
       }, { status: 400 });
     }
 
-    const ticket = await Ticket.findById(params.id);
+    const ticket = await Ticket.findById(id);
     
     if (!ticket) {
       return NextResponse.json({

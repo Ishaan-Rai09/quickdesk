@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import Agent from '@/models/Agent';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,29 +16,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await dbConnect();
+    // Simple hardcoded authentication - no database required
+    let userRole = null;
+    let userInfo = null;
 
-    // Find user by email and ensure they are agent or admin
-    const user = await User.findOne({ 
-      email: email.toLowerCase(),
-      role: { $in: ['agent', 'admin'] },
-      isActive: true
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid credentials or insufficient permissions' },
-        { status: 401 }
-      );
+    // Check for agent credentials
+    if (email === 'agent@quickdesk.com' && password === 'agent123') {
+      userRole = 'agent';
+      userInfo = {
+        id: 'agent-1',
+        email: 'agent@quickdesk.com',
+        firstName: 'Support',
+        lastName: 'Agent',
+        role: 'agent'
+      };
     }
-
-    // For this simplified version, we'll use email-based authentication
-    // In production, you should store hashed passwords
-    const validCredentials = 
-      (email === 'admin@quickdesk.com' && password === 'Admin@123456') ||
-      (email === 'agent@quickdesk.com' && password === 'Agent@123456');
-
-    if (!validCredentials) {
+    // Check for admin credentials
+    else if (email === 'admin@quickdesk.com' && password === 'admin123') {
+      userRole = 'admin';
+      userInfo = {
+        id: 'admin-1',
+        email: 'admin@quickdesk.com',
+        firstName: 'System',
+        lastName: 'Admin',
+        role: 'admin'
+      };
+    }
+    else {
       return NextResponse.json(
         { success: false, error: 'Invalid credentials' },
         { status: 401 }
@@ -47,9 +52,9 @@ export async function POST(request: NextRequest) {
     // Create JWT token
     const token = jwt.sign(
       { 
-        userId: user._id,
-        email: user.email,
-        role: user.role
+        id: userInfo.id,
+        email: userInfo.email,
+        role: userRole
       },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
@@ -60,13 +65,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Login successful',
       data: {
-        user: {
-          id: user._id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role
-        }
+        user: userInfo
       }
     });
 

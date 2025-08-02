@@ -7,12 +7,13 @@ import { requireAuth, getCurrentUser } from '@/lib/auth';
 // Get single ticket by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await dbConnect();
+  const { id } = await context.params;
 
   try {
-    const ticket = await Ticket.findById(params.id).populate('category');
+    const ticket = await Ticket.findById(id).populate('category');
     
     if (!ticket) {
       return NextResponse.json({
@@ -36,7 +37,7 @@ export async function GET(
 // Update ticket (Agents and Admin only)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const authResult = await requireAuth(request, ['agent', 'admin']);
   
@@ -45,11 +46,12 @@ export async function PUT(
   }
 
   await dbConnect();
+  const { id } = await context.params;
 
   const { status, priority, assignedToId, subject, description } = await request.json();
 
   try {
-    const ticket = await Ticket.findById(params.id);
+    const ticket = await Ticket.findById(id);
     
     if (!ticket) {
       return NextResponse.json({
@@ -131,7 +133,7 @@ export async function PUT(
 // Delete ticket (Admin only)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const authResult = await requireAuth(request, ['admin']);
   
@@ -140,9 +142,10 @@ export async function DELETE(
   }
 
   await dbConnect();
+  const { id } = await context.params;
 
   try {
-    const ticket = await Ticket.findByIdAndDelete(params.id);
+    const ticket = await Ticket.findByIdAndDelete(id);
     
     if (!ticket) {
       return NextResponse.json({

@@ -76,9 +76,10 @@ export function extractTokenFromRequest(request: NextRequest): string | null {
 
 // Extract token from cookies
 export function extractTokenFromCookies(request: NextRequest): string | null {
+  const authToken = request.cookies.get('auth-token')?.value;
   const agentToken = request.cookies.get('agent-token')?.value;
   const adminToken = request.cookies.get('admin-token')?.value;
-  return agentToken || adminToken || null;
+  return authToken || agentToken || adminToken || null;
 }
 
 // Admin credentials check (simulated)

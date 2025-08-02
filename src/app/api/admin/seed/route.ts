@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
+import Agent from '@/models/Agent';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +10,6 @@ export async function POST(request: NextRequest) {
 
     // Create default admin user
     const adminPassword = 'Admin@123456';
-    const adminHashedPassword = await bcrypt.hash(adminPassword, 12);
     
     const defaultAdmin = {
       clerkId: 'admin_default_001',
@@ -24,26 +24,21 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    // Create default agent user
-    const agentPassword = 'Agent@123456';
+    // Create default agent user - use the correct password from seed
+    const agentPassword = 'agent123';
     const agentHashedPassword = await bcrypt.hash(agentPassword, 12);
     
-    const defaultAgent = {
-      clerkId: 'agent_default_001',
+    const defaultAgentData = {
       email: 'agent@quickdesk.com',
       firstName: 'Support',
       lastName: 'Agent',
-      role: 'agent',
-      isActive: true,
-      notificationSettings: {
-        email: true,
-        sms: false
-      }
+      passwordHash: agentHashedPassword,
+      isActive: true
     };
 
     // Check if users already exist
     const existingAdmin = await User.findOne({ email: defaultAdmin.email });
-    const existingAgent = await User.findOne({ email: defaultAgent.email });
+    const existingAgent = await Agent.findOne({ email: defaultAgentData.email });
 
     const results = [];
 
@@ -65,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!existingAgent) {
-      const agent = await User.create(defaultAgent);
+      const agent = await Agent.create(defaultAgentData);
       results.push({
         type: 'agent',
         email: agent.email,

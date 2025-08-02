@@ -57,7 +57,7 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes for better query performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ clerkId: 1 });
+// Note: email index is created by unique: true above
+// Note: clerkId index is created by index: true above
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

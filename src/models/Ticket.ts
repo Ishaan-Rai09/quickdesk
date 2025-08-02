@@ -45,7 +45,7 @@ const TicketSchema = new Schema<ITicket>(
   {
     ticketNumber: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
     },
     subject: {
@@ -109,7 +109,7 @@ const TicketSchema = new Schema<ITicket>(
 );
 
 // Indexes for better query performance
-TicketSchema.index({ ticketNumber: 1 });
+// Note: ticketNumber index is created by unique: true above
 TicketSchema.index({ 'user.id': 1 });
 TicketSchema.index({ 'assignedTo.id': 1 });
 TicketSchema.index({ status: 1 });
@@ -124,22 +124,5 @@ TicketSchema.pre('save', function(next) {
   next();
 });
 
-// Generate ticket number
-TicketSchema.pre('save', async function(next) {
-  if (this.isNew && !this.ticketNumber) {
-    try {
-      // Use a more reliable approach to generate ticket numbers
-      const TicketModel = mongoose.models.Ticket || mongoose.model('Ticket', TicketSchema);
-      const count = await TicketModel.countDocuments({});
-      const ticketNumber = `QD-${String(count + 1).padStart(6, '0')}`;
-      this.ticketNumber = ticketNumber;
-    } catch (error) {
-      console.error('Error generating ticket number:', error);
-      // Fallback to timestamp-based number
-      this.ticketNumber = `QD-${Date.now()}`;
-    }
-  }
-  next();
-});
 
 export default mongoose.models.Ticket || mongoose.model<ITicket>('Ticket', TicketSchema);

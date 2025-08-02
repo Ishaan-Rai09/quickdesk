@@ -175,6 +175,24 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Generate ticket number
+    let ticketNumber = 'QD-000001'; // Default first ticket
+    try {
+      const lastTicket = await Ticket.findOne().sort({ createdAt: -1 }).lean();
+      if (lastTicket && lastTicket.ticketNumber) {
+        // Extract number from ticketNumber (format: QD-XXXXXX)
+        const match = lastTicket.ticketNumber.match(/QD-(\d+)/);
+        if (match) {
+          const nextNumber = parseInt(match[1]) + 1;
+          ticketNumber = `QD-${String(nextNumber).padStart(6, '0')}`;
+        }
+      }
+    } catch (error) {
+      console.error('Error getting last ticket number:', error);
+      // Use timestamp-based fallback
+      ticketNumber = `QD-${Date.now()}`;
+    }
+
     // Get category if provided
     let categoryDoc = null;
     if (category) {
@@ -182,6 +200,7 @@ export async function POST(request: NextRequest) {
     }
 
     const ticket = new Ticket({
+      ticketNumber,
       subject: question,
       description,
       priority,

@@ -6,9 +6,10 @@ import { requireAuth, getCurrentUser } from '@/lib/auth';
 // Add comment to ticket
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await dbConnect();
+  const { id } = await context.params;
 
   const { content, isInternal = false } = await request.json();
 
@@ -26,7 +27,16 @@ export async function POST(
     
     let author: any;
     
-    if (clerkUser) {
+    if (authResult) {
+      // Agent or admin commenting
+      author = {
+        id: authResult.user.id,
+        name: authResult.type === 'admin' ? 'Admin User' : 'Support Agent',
+        email: authResult.user.email,
+        role: authResult.type,
+        avatar: undefined
+      };
+    } else if (clerkUser) {
       // End user commenting
       author = {
         id: clerkUser.id,
@@ -35,20 +45,11 @@ export async function POST(
         role: 'user',
         avatar: ''
       };
-    } else if (authResult) {
-      // Agent or admin commenting
-      author = {
-        id: authResult.user.id,
-        name: authResult.type === 'admin' ? 'Admin User' : authResult.user.email,
-        email: authResult.user.email,
-        role: authResult.type,
-        avatar: undefined
-      };
     } else {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const ticket = await Ticket.findById(params.id);
+    const ticket = await Ticket.findById(id);
     
     if (!ticket) {
       return NextResponse.json({
@@ -88,12 +89,13 @@ export async function POST(
 // Get comments for a ticket
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await dbConnect();
+  const { id } = await context.params;
 
   try {
-    const ticket = await Ticket.findById(params.id).select('comments');
+    const ticket = await Ticket.findById(id).select('comments');
     
     if (!ticket) {
       return NextResponse.json({
