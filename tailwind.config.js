@@ -8,26 +8,59 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+
+        background: "#ffffff",
+        foreground: "#111827",
         primary: {
-          DEFAULT: "#6366f1",
-          50: "#eef2ff",
-          100: "#e0e7ff",
-          500: "#6366f1",
-          600: "#4f46e5",
-          700: "#4338ca",
-          900: "#312e81",
+          DEFAULT: "#1f2937",
+          50: "#f3f4f6",
+          100: "#e5e7eb",
+          200: "#d1d5db",
+          300: "#9ca3af",
+          400: "#6b7280",
+          500: "#4b5563",
+          600: "#374151",
+          700: "#1f2937",
+          800: "#111827",
+          900: "#0f172a",
+        },
+        gold: {
+          DEFAULT: "#d4af37",
+          light: "#f2e3b6",
+        },
+        navy: {
+          DEFAULT: "#1e293b",
+          800: "#0f172a",
+          900: "#0c1117",
         },
         secondary: {
-          DEFAULT: "#f1f5f9",
+          DEFAULT: "#f8fafc",
           foreground: "#0f172a",
         },
         destructive: {
           DEFAULT: "#ef4444",
           foreground: "#ffffff",
         },
+        muted: {
+          DEFAULT: "#f1f5f9",
+          foreground: "#64748b",
+        },
+        accent: {
+          DEFAULT: "#f1f5f9",
+          foreground: "#0f172a",
+        },
+        card: {
+          DEFAULT: "#ffffff",
+          foreground: "#0f172a",
+        },
+        border: "#e2e8f0",
+        input: "#e2e8f0",
         ring: "#6366f1",
+        luxury: {
+          gold: "#d4af37",
+          platinum: "#e5e4e2",
+          diamond: "#b9f2ff",
+        },
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],

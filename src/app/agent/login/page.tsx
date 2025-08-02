@@ -36,10 +36,7 @@ export default function AgentLogin() {
       const data = await response.json();
 
       if (data.success) {
-        // Store user info in localStorage for client-side access
-        localStorage.setItem('authUser', JSON.stringify(data.data.user));
-        
-        // Redirect based on role
+        // Redirect based on role after successful authentication
         if (data.data.user.role === 'admin') {
           router.push('/admin/dashboard');
         } else {
@@ -56,32 +53,33 @@ export default function AgentLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-white">
+      <div className="max-w-lg w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mb-6">
-            <Shield className="w-8 h-8 text-white" />
+          <div className="mx-auto w-20 h-20 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-2xl flex items-center justify-center mb-8 shadow-lg">
+            <Shield className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+          <h2 className="text-4xl font-black text-gradient bg-gradient-to-r from-gray-900 to-black bg-clip-text text-transparent">
             Agent Portal
           </h2>
-          <p className="mt-2 text-gray-600">
-            Sign in to your support agent account
+          <p className="mt-3 text-lg text-gray-500">
+            Login to your support agent account
           </p>
         </div>
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          className="bg-white shadow-2xl rounded-3xl p-8"
         >
-          <Card className="bg-white/80 backdrop-blur-sm shadow-xl border border-gray-200/50">
+          <Card className="bg-white/90 backdrop-blur-md shadow-xl border border-gray-100">
             <CardHeader>
-              <CardTitle className="text-center">Agent Login</CardTitle>
+              <CardTitle className="text-center text-blue-800 text-2xl font-bold pb-4">Agent Login</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-8">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-bold text-gray-700">
                     Email Address
                   </label>
                   <Input
@@ -91,12 +89,12 @@ export default function AgentLogin() {
                     placeholder="agent@quickdesk.com"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className={error ? 'border-red-500' : ''}
+                    className={`mt-1 block w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${error ? 'border-red-500' : ''}`}
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="password" className="block text-sm font-bold text-gray-700">
                     Password
                   </label>
                   <div className="relative">
@@ -104,27 +102,27 @@ export default function AgentLogin() {
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       required
-                      placeholder="Enter your password"
+                      placeholder="Your secure password"
                       value={formData.password}
                       onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                      className={`pr-10 ${error ? 'border-red-500' : ''}`}
+                      className={`mt-1 block w-full px-3 py-2 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10 ${error ? 'border-red-500' : ''}`}
                     />
                     <button
                       type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
+                        <EyeOff className="h-5 w-5" />
                       ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
+                        <Eye className="h-5 w-5" />
                       )}
                     </button>
                   </div>
                 </div>
 
                 {error && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
                     <p className="text-red-600 text-sm">{error}</p>
                   </div>
                 )}
@@ -134,7 +132,7 @@ export default function AgentLogin() {
                   variant="premium"
                   size="lg"
                   disabled={loading}
-                  className="w-full"
+                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-teal-500 text-white text-lg font-semibold rounded-lg hover:from-blue-600 hover:to-teal-600"
                 >
                   {loading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
@@ -145,15 +143,15 @@ export default function AgentLogin() {
                 </Button>
               </form>
 
-              <div className="mt-6 text-center">
+              <div className="mt-8 text-center">
                 <p className="text-sm text-gray-600">
-                  <strong>Agent:</strong> agent@quickdesk.com / agent123
+                  <strong>Agent Credentials:</strong> agent@quickdesk.com / agent123
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  <strong>Admin:</strong> admin@quickdesk.com / admin123
+                <p className="text-sm text-gray-600 mt-2">
+                  <strong>Admin Credentials:</strong> admin@quickdesk.com / Admin@123456
                 </p>
-                <Link href="/" className="text-indigo-600 hover:text-indigo-500 text-sm">
-                  Back to Home
+                <Link href="/" className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-4 block">
+                  ⟵ Back to Home
                 </Link>
               </div>
             </CardContent>

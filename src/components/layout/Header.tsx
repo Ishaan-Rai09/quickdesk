@@ -30,7 +30,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur-xl shadow-lg">
+    <header className="sticky top-0 z-50 w-full bg-white border-b border-gray-100 shadow-sm">
       <nav className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -40,11 +40,11 @@ export default function Header() {
             className="flex items-center space-x-3"
           >
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all group-hover:scale-105">
-                <Ticket className="w-7 h-7 text-white" />
+              <div className="w-10 h-10 bg-yellow-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
+                <span className="text-white font-bold text-lg">Λ</span>
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                QuickDesk
+              <span className="text-xl font-bold text-navy-800">
+                QuickDesk AI
               </span>
             </Link>
           </motion.div>
@@ -108,27 +108,29 @@ export default function Header() {
               </>
             ) : (
               <>
-                <Link href="/">
-                  <Button variant="ghost" className="text-gray-700 hover:text-indigo-600 font-medium">
-                    <Home className="w-4 h-4 mr-2" />
-                    Home
-                  </Button>
-                </Link>
-                <Link href="/sign-in">
-                  <Button variant="ghost" className="text-gray-700 hover:text-indigo-600 font-medium">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/agent/login">
-                  <Button variant="outline" className="font-medium">
-                    Agent Login
-                  </Button>
-                </Link>
-                <Link href="/sign-up">
-                  <Button variant="premium" className="font-medium">
-                    Get Started
-                  </Button>
-                </Link>
+                <nav className="hidden lg:flex items-center space-x-8">
+                  <Link href="/" className="text-gray-700 hover:text-navy-800 font-medium transition-colors">
+                    Features
+                  </Link>
+                  <Link href="/" className="text-gray-700 hover:text-navy-800 font-medium transition-colors">
+                    About
+                  </Link>
+                  <Link href="/" className="text-gray-700 hover:text-navy-800 font-medium transition-colors">
+                    Reviews
+                  </Link>
+                </nav>
+                <div className="flex items-center space-x-4">
+                  <Link href="/agent/login">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300">
+                      Agent Login
+                    </Button>
+                  </Link>
+                  <Link href="/sign-up">
+                    <Button className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300">
+                      User Login
+                    </Button>
+                  </Link>
+                </div>
               </>
             )}
           </div>

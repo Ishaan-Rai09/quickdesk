@@ -16,38 +16,112 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Simple hardcoded authentication - no database required
+    // Connect to database for real authentication
+    await dbConnect();
+    
     let userRole = null;
     let userInfo = null;
 
-    // Check for agent credentials
-    if (email === 'agent@quickdesk.com' && password === 'agent123') {
-      userRole = 'agent';
-      userInfo = {
-        id: 'agent-1',
+    // Auto-create users for development if they don't exist
+    const totalUsers = await User.countDocuments();
+    const totalAgents = await Agent.countDocuments();
+    
+    if (totalUsers === 0 && totalAgents === 0) {
+      console.log('No users found, creating default users...');
+      
+      // Create default admin
+      const defaultAdmin = {
+        clerkId: 'admin_default_001',
+        email: 'admin@quickdesk.com',
+        firstName: 'System',
+        lastName: 'Administrator',
+        role: 'admin',
+        isActive: true,
+        notificationSettings: {
+          email: true,
+          sms: false
+        }
+      };
+      await User.create(defaultAdmin);
+      console.log('Created default admin user');
+      
+      // Create default agent
+      const agentPassword = 'agent123';
+      const agentHashedPassword = await bcrypt.hash(agentPassword, 12);
+      const defaultAgentData = {
         email: 'agent@quickdesk.com',
         firstName: 'Support',
         lastName: 'Agent',
-        role: 'agent'
+        passwordHash: agentHashedPassword,
+        isActive: true
       };
+      await Agent.create(defaultAgentData);
+      console.log('Created default agent user');
     }
-    // Check for admin credentials
-    else if (email === 'admin@quickdesk.com' && password === 'admin123') {
-      userRole = 'admin';
-      userInfo = {
-        id: 'admin-1',
-        email: 'admin@quickdesk.com',
-        firstName: 'System',
-        lastName: 'Admin',
-        role: 'admin'
-      };
+
+    // First, check if it's an agent
+    console.log('Checking for agent with email:', email.toLowerCase());
+    const agent = await Agent.findOne({ email: email.toLowerCase() });
+    console.log('Agent found:', !!agent);
+    
+    if (agent) {
+      console.log('Agent details:', { email: agent.email, isActive: agent.isActive });
+      const isValidPassword = await bcrypt.compare(password, agent.passwordHash);
+      console.log('Password valid for agent:', isValidPassword);
+      
+      if (isValidPassword && agent.isActive) {
+        console.log('Agent login successful');
+        userRole = 'agent';
+        userInfo = {
+          id: agent._id.toString(),
+          email: agent.email,
+          firstName: agent.firstName,
+          lastName: agent.lastName,
+          role: 'agent'
+        };
+      }
     }
-    else {
+    
+    // If not an agent, check if it's an admin user
+    if (!userInfo) {
+      console.log('Checking for admin user with email:', email.toLowerCase());
+      const user = await User.findOne({ email: email.toLowerCase() });
+      console.log('Admin user found:', !!user);
+      
+      if (user) {
+        console.log('Admin user details:', { email: user.email, role: user.role, isActive: user.isActive });
+        
+        if (user.role === 'admin' && user.isActive) {
+          console.log('Checking admin password. Expected: Admin@123456, Received:', password);
+          // For admin users, we don't store password hash in User model
+          // We'll check against the default admin password for now
+          // In production, you might want to implement proper password hashing for admin users too
+          if (password === 'Admin@123456') {
+            console.log('Admin login successful');
+            userRole = 'admin';
+            userInfo = {
+              id: user._id.toString(),
+              email: user.email,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              role: 'admin'
+            };
+          } else {
+            console.log('Admin password mismatch');
+          }
+        }
+      }
+    }
+    
+    if (!userInfo) {
+      console.log('Login failed - no valid user found');
       return NextResponse.json(
         { success: false, error: 'Invalid credentials' },
         { status: 401 }
       );
     }
+    
+    console.log('Login successful for:', userInfo.email, 'Role:', userRole);
 
     // Create JWT token
     const token = jwt.sign(

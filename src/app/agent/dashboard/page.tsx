@@ -43,21 +43,30 @@ export default function AgentDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Check if agent is authenticated
-    const authUser = localStorage.getItem('authUser');
-    if (!authUser) {
+    // Check if user is agent via API endpoint
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/verify');
+      if (!response.ok) {
+        router.push('/agent/login');
+        return;
+      }
+      
+      const data = await response.json();
+      if (data.user?.role !== 'agent' && data.user?.role !== 'admin') {
+        router.push('/agent/login');
+        return;
+      }
+      
+      fetchAllTickets();
+    } catch (error) {
+      console.error('Auth check failed:', error);
       router.push('/agent/login');
-      return;
     }
-    
-    const user = JSON.parse(authUser);
-    if (user.role !== 'agent') {
-      router.push('/agent/login');
-      return;
-    }
-    
-    fetchAllTickets();
-  }, [router]);
+  };
 
   const fetchAllTickets = async () => {
     try {
@@ -122,8 +131,12 @@ export default function AgentDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('authUser');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     router.push('/');
   };
 
@@ -142,17 +155,26 @@ export default function AgentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-gray-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <div className="bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200/50">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Agent Dashboard</h1>
-              <p className="text-gray-600">Manage customer support tickets</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                <Ticket className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-black bg-gradient-to-r from-slate-800 to-slate-900 bg-clip-text text-transparent">Agent Dashboard</h1>
+                <p className="text-lg text-slate-600 font-medium">Premium Support Management Portal</p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={handleLogout}>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="bg-white/80 hover:bg-red-50 border-red-200 text-red-600 hover:text-red-700 font-semibold px-6 py-2 rounded-xl shadow-lg"
+              >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>

@@ -30,21 +30,30 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    // Check if user is admin
-    const authUser = localStorage.getItem('authUser');
-    if (!authUser) {
-      router.push('/agent/login');
-      return;
-    }
-    
-    const user = JSON.parse(authUser);
-    if (user.role !== 'admin') {
-      router.push('/agent/dashboard');
-      return;
-    }
-
-    fetchData();
+    // Check if user is admin via API endpoint
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/verify');
+      if (!response.ok) {
+        router.push('/agent/login');
+        return;
+      }
+      
+      const data = await response.json();
+      if (data.user?.role !== 'admin') {
+        router.push('/agent/dashboard');
+        return;
+      }
+      
+      fetchData();
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      router.push('/agent/login');
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -252,58 +261,60 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-gray-50 to-indigo-50 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-10"
         >
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
+          <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 mb-8">
+            <div className="flex items-center gap-6 mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Shield className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-black bg-gradient-to-r from-slate-800 to-slate-900 bg-clip-text text-transparent">
+                  Admin Dashboard
+                </h1>
+                <p className="text-xl text-slate-600 font-medium mt-2">Elite Management Control Center</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                Admin Dashboard
-              </h1>
-              <p className="text-gray-600">Manage users, categories, and system settings</p>
-            </div>
-          </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex gap-4 border-b">
-            <button
-              onClick={() => setActiveTab('overview')}
-              className={`pb-2 px-1 border-b-2 transition-colors ${
-                activeTab === 'overview'
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`pb-2 px-1 border-b-2 transition-colors ${
-                activeTab === 'users'
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              User Management
-            </button>
-            <button
-              onClick={() => setActiveTab('categories')}
-              className={`pb-2 px-1 border-b-2 transition-colors ${
-                activeTab === 'categories'
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Categories
-            </button>
+            {/* Navigation Tabs */}
+            <div className="flex gap-6 border-b border-gray-200/50">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`pb-4 px-4 border-b-3 transition-all font-bold text-lg ${
+                  activeTab === 'overview'
+                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50 rounded-t-lg'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-gray-50 rounded-t-lg'
+                }`}
+              >
+                📊 Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`pb-4 px-4 border-b-3 transition-all font-bold text-lg ${
+                  activeTab === 'users'
+                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50 rounded-t-lg'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-gray-50 rounded-t-lg'
+                }`}
+              >
+                👥 User Management
+              </button>
+              <button
+                onClick={() => setActiveTab('categories')}
+                className={`pb-4 px-4 border-b-3 transition-all font-bold text-lg ${
+                  activeTab === 'categories'
+                    ? 'border-indigo-600 text-indigo-600 bg-indigo-50 rounded-t-lg'
+                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-gray-50 rounded-t-lg'
+                }`}
+              >
+                🏷️ Categories
+              </button>
+            </div>
           </div>
         </motion.div>
 

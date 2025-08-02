@@ -154,14 +154,12 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // For development/demo, create a fallback user if no auth is found
+  // Require authentication for ticket creation
   if (!user) {
-    user = {
-      id: 'demo-user-' + Date.now(),
-      name: 'Demo User',
-      email: 'demo@example.com',
-      avatar: ''
-    };
+    return NextResponse.json({
+      success: false,
+      error: 'Authentication required'
+    }, { status: 401 });
   }
 
   const { question, description, tags, priority = 'medium', category } = await request.json();
